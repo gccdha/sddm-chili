@@ -3,21 +3,18 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
+    systems.url = "github:nix-systems/default-linux";
   };
 
-  outputs = inputs @ { self, nixpkgs, ... }: 
+  outputs = { self, nixpkgs, systems, ... }:
   let
-    lib = nixpkgs.lib;
-    genSystems = lib.genAttrs [
-      "aarch64-linux"
-      "x86_64-linux"
-    ];
-
+    version = builtins.substring 0 8 self.lastModifiedDate;
+    eachSystem = nixpkgs.lib.genAttrs (import systems);
   in
   {
-    packages = genSystems (system: {
-      sddm-chili = nixpkgs.legacyPackages.${system}.callPackage ./sddm-chili.nix;
+    packages = eachSystem (system: {
+      sddm-chili = nixpkgs.legacyPackages.${system}.callPackage ./sddm-chili.nix { inherit version; };
     });
-    defaultPackage = genSystems (system: self.packages.${system}.sddm-chili);
+    defaultPackage = eachSystem (system: self.packages.${system}.sddm-chili);
   };
 }

@@ -1,11 +1,12 @@
 {
   lib,
   stdenvNoCC,
-  qtgraphicaleffects
+  libsForQt5,
+  version
 }:
 stdenvNoCC.mkDerivation {
   pname = "sddm-chili";
-  version = "1.0";
+  version = version;
 
   src = lib.cleanSource ./.;
 
@@ -13,7 +14,7 @@ stdenvNoCC.mkDerivation {
   dontBuild = true;
   dontWrapQtApps = true;
 
-  propagatedBuildInputs = [
+  propagatedBuildInputs = with libsForQt5.qt5; [
     qtgraphicaleffects
   ];
 
@@ -26,6 +27,6 @@ stdenvNoCC.mkDerivation {
   postFixup = ''
     mkdir -p $out/nix-support
 
-    echo ${qtgraphicaleffects} >> $out/nix-support/propagated-user-env-packages
+    echo ${libsForQt5.qt5.qtgraphicaleffects} >> $out/nix-support/propagated-user-env-packages
   '';
 }
